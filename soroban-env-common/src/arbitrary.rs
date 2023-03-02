@@ -12,7 +12,6 @@ impl<'a> Arbitrary<'a> for Error {
     fn arbitrary(u: &mut Unstructured<'a>) -> arbitrary::Result<Self> {
         let scstatus = ScError::arbitrary(u)?;
         let status = Error::from(scstatus);
-
         Ok(status)
     }
 }
