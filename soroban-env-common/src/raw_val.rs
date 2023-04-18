@@ -209,7 +209,7 @@ impl Tag {
             Tag::SymbolObject => Some(ScValType::Symbol),
             Tag::VecObject => Some(ScValType::Vec),
             Tag::MapObject => Some(ScValType::Map),
-            Tag::ContractExecutableObject => Some(ScValType::LedgerKeyContractExecutable),
+            Tag::ContractExecutableObject => Some(ScValType::ContractExecutable),
             Tag::AddressObject => Some(ScValType::Address),
             Tag::LedgerKeyNonceObject => Some(ScValType::LedgerKeyNonce),
             Tag::ObjectCodeUpperBound => panic!(),
