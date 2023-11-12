@@ -161,6 +161,7 @@ impl StellarAssetContractTest {
             })
             .unwrap()
     }
+
     #[allow(clippy::too_many_arguments)]
     fn create_account(
         &self,
@@ -3173,4 +3174,56 @@ fn test_sac_reentry_is_not_allowed() {
         .unwrap()
         .error
         .is_type(ScErrorType::Auth));
+}
+
+#[test]
+fn test_allowance_live_until_2() {
+    let test = StellarAssetContractTest::setup(function_name!());
+    let admin = TestSigner::account(&test.issuer_key);
+    let contract = test.default_stellar_asset_contract();
+
+    let user = TestSigner::account(&test.user_key);
+    let user_2 = TestSigner::account(&test.user_key_2);
+    test.create_default_account(&user);
+    test.create_default_account(&user_2);
+    test.create_default_trustline(&user);
+    test.create_default_trustline(&user_2);
+
+    contract
+        .mint(&admin, user.address(&test.host), 10_000_000)
+        .unwrap();
+    assert_eq!(
+        contract.balance(user.address(&test.host)).unwrap(),
+        10_000_000,
+    );
+
+    let _ = contract.approve(&user, user_2.address(&test.host), 34176332920505566768947789824, 123);
+    assert_eq!(
+        contract
+            .allowance(user.address(&test.host), user_2.address(&test.host))
+            .unwrap(),
+        34176332920505566768947789824,
+    );
+
+
+    test.host
+        .with_mut_ledger_info(|li| li.sequence_number = 5215)
+        .unwrap();
+    assert_eq!(
+        contract
+            .allowance(user.address(&test.host), user_2.address(&test.host))
+            .unwrap(),
+        0
+    );
+
+    contract
+        .approve(&user, user_2.address(&test.host), 1157210255153926759939784970126417630, 90818)
+        .unwrap();
+
+    assert_eq!(
+        contract
+            .allowance(user.address(&test.host), user_2.address(&test.host))
+            .unwrap(),
+        1157210255153926759939784970126417630,
+    );
 }
